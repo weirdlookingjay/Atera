@@ -1,0 +1,262 @@
+{
+	"info": {
+		"_postman_id": "b4f5c2e1-8f3a-4d2c-9b3e-1d2f3e4c5b6a",
+		"name": "Aatera IT Management",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8000",
+			"type": "string"
+		},
+		{
+			"key": "csrftoken",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwt_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Get CSRF Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var xsrfCookie = pm.cookies.get('csrftoken');",
+									"if (xsrfCookie) {",
+									"    pm.collectionVariables.set('csrftoken', xsrfCookie);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/accounts/accounts/get_csrf_token/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "accounts", "accounts", "get_csrf_token", ""]
+						}
+					}
+				},
+				{
+					"name": "Register User",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRFToken",
+								"value": "{{csrftoken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\",\n    \"first_name\": \"Test\",\n    \"last_name\": \"User\",\n    \"password\": \"strongpassword123\",\n    \"re_password\": \"strongpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/users/",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "users", ""]
+						}
+					}
+				},
+				{
+					"name": "Login (Get JWT)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRFToken",
+								"value": "{{csrftoken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"strongpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/jwt/create/",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "jwt", "create", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Devices",
+			"item": [
+				{
+					"name": "List Devices",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/devices/devices/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "devices", "devices", ""]
+						}
+					}
+				},
+				{
+					"name": "Create Device",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRFToken",
+								"value": "{{csrftoken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Development Laptop\",\n    \"device_type\": \"LAPTOP\",\n    \"status\": \"ONLINE\",\n    \"ip_address\": \"192.168.1.100\",\n    \"mac_address\": \"00:1B:44:11:3A:B7\",\n    \"hostname\": \"DEV-LAPTOP-01\",\n    \"operating_system\": \"Windows\",\n    \"os_version\": \"11 Pro\",\n    \"manufacturer\": \"Dell\",\n    \"model\": \"XPS 15\",\n    \"serial_number\": \"XPS123456\",\n    \"notes\": \"Primary development machine\",\n    \"specifications\": {\n        \"cpu\": \"Intel Core i9-12900H\",\n        \"ram_gb\": 32,\n        \"storage_gb\": 1000,\n        \"gpu\": \"NVIDIA RTX 3050 Ti\",\n        \"screen_size\": \"15.6 inch\",\n        \"battery_health\": \"Good\",\n        \"additional_specs\": {\n            \"wifi\": \"Intel Wi-Fi 6E\",\n            \"bluetooth\": \"5.2\"\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/devices/devices/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "devices", "devices", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Device",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/devices/devices/{id}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "devices", "devices", "{id}", ""]
+						}
+					}
+				},
+				{
+					"name": "Update Device",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRFToken",
+								"value": "{{csrftoken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Development Laptop Updated\",\n    \"status\": \"MAINTENANCE\",\n    \"notes\": \"Under maintenance for upgrade\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/devices/devices/{id}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "devices", "devices", "{id}", ""]
+						}
+					}
+				},
+				{
+					"name": "Delete Device",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-CSRFToken",
+								"value": "{{csrftoken}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/devices/devices/{id}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "devices", "devices", "{id}", ""]
+						}
+					}
+				},
+				{
+					"name": "Filter Devices by Type",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/devices/devices/?device_type=LAPTOP",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "devices", "devices", ""],
+							"query": [
+								{
+									"key": "device_type",
+									"value": "LAPTOP"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Search Devices",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/devices/devices/?search=development",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "devices", "devices", ""],
+							"query": [
+								{
+									"key": "search",
+									"value": "development"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Order Devices by Last Seen",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/devices/devices/?ordering=-last_seen",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "devices", "devices", ""],
+							"query": [
+								{
+									"key": "ordering",
+									"value": "-last_seen"
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	]
+}

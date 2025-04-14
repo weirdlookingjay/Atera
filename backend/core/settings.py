@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
+from datetime import timedelta
 
 # Load environment variables
 load_dotenv()
@@ -29,14 +30,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-key-change-this')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
+DEBUG = True
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
-
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Application definition
 
 INSTALLED_APPS = [
+    # Local apps first
+    'apps.accounts.apps.AccountsConfig',  # Must be first
+    'apps.devices.apps.DevicesConfig',
+    'apps.monitoring.apps.MonitoringConfig',
+    'apps.automation.apps.AutomationConfig',
+    'apps.tickets.apps.TicketsConfig',
+    'apps.billing.apps.BillingConfig',
+    
+    # Django apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -50,15 +59,10 @@ INSTALLED_APPS = [
     'django_filters',
     'djoser',
     'channels',
-    
-    # Local apps
-    'apps.accounts.apps.AccountsConfig',
-    'apps.devices.apps.DevicesConfig',
-    'apps.monitoring.apps.MonitoringConfig',
-    'apps.automation.apps.AutomationConfig',
-    'apps.tickets.apps.TicketsConfig',
-    'apps.billing.apps.BillingConfig',
 ]
+
+# Custom user model - must be set before running any migrations
+AUTH_USER_MODEL = 'accounts.UserAccount'
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -145,10 +149,25 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# CSRF Settings
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+CSRF_COOKIE_SECURE = False  # Set to True in production
+CSRF_USE_SESSIONS = False
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+# CORS settings
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
+CORS_ALLOW_CREDENTIALS = True
+
 # REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -158,11 +177,31 @@ REST_FRAMEWORK = {
     ),
 }
 
-# CORS settings
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-]
+# Djoser settings
+DJOSER = {
+    'USER_CREATE_PASSWORD_RETYPE': True,
+    'SEND_ACTIVATION_EMAIL': False,  # Disable activation email
+    'ACTIVATION_URL': '#/activate/{uid}/{token}',
+    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
+    'TOKEN_MODEL': None,
+    'SERIALIZERS': {},
+}
+
+# JWT settings
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'SIGNING_KEY': SECRET_KEY,
+    'ALGORITHM': 'HS256',  # Use HMAC-SHA256 instead of RSA
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+}
+
+# Email settings (we'll configure this later)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Channels settings
 ASGI_APPLICATION = 'core.asgi.application'

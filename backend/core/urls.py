@@ -22,14 +22,14 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/auth/', include('djoser.urls')),
-    path('api/auth/', include('djoser.urls.jwt')),
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.jwt')),
     
     # API endpoints
-    path('api/accounts/', include('apps.accounts.urls')),
-    path('api/devices/', include('apps.devices.urls')),
-    path('api/monitoring/', include('apps.monitoring.urls')),
-    path('api/automation/', include('apps.automation.urls')),
-    path('api/tickets/', include('apps.tickets.urls')),
-    path('api/billing/', include('apps.billing.urls')),
+    path('api/v1/devices/', include('apps.devices.urls')),
+    path('api/v1/accounts/', include('apps.accounts.urls')),
+    path('api/v1/monitoring/', include('apps.monitoring.urls')),
+    path('api/v1/automation/', include('apps.automation.urls')),
+    path('api/v1/tickets/', include('apps.tickets.urls')),
+    path('api/v1/billing/', include('apps.billing.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,7 +1,12 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import DeviceViewSet
 
 app_name = 'devices'
 
+router = DefaultRouter()
+router.register(r'devices', DeviceViewSet)
+
 urlpatterns = [
-    # URLs will be added here
+    path('', include(router.urls)),
 ]
